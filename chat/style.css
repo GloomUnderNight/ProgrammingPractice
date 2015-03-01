@@ -70,11 +70,17 @@ textarea {
     box-sizing: content-box;
     text-align: left;
 }
+
+tr, td {
+    height: 40px;
+}
 /* Center layout classes
 -----------------------------------------------------------------------------*/
 .content {
     width: 100%;
     height: 100%;
+    max-height: 350px;
+    overflow: auto;
 }
 
 .right-sidebar {
@@ -103,7 +109,7 @@ textarea {
 .NamePanel {
     margin: -22px auto 0;
     width: 100%;
-    min-width: 225px;
+    min-width: 230px;
 }
 
 
@@ -112,6 +118,7 @@ textarea {
     text-align: center;
     background: #91E4FB;
 }
+
 
 
 /* Entities classes
@@ -144,14 +151,41 @@ textarea {
 .simpleButton {
     background-color: #A8C6FA;
     border-color: #008DB1;
+    min-width: 50px;
+}
+
+.messageField {
+    min-height: 40px;
+    height: auto;
+    background-color: #75A9F9;
+}
+
+.messageFunctions {
+    width: 5%;
+    vertical-align: middle;
+}
+
+.messageName {
+    width: 10%;
+    text-align: center;
+}
+
+.messageText {
+    width: 80%;
+    text-align: left;
+}
+
+.yourMessageField {
+    height: auto;
+    background-color: #00C8F8;
 }
 
 /* Footer
 -----------------------------------------------------------------------------*/
 .footer {
     margin: -50px auto 0;
-    min-width: 1000px;
+    width: 100%;
     height: 50px;
     background: #00A4D3 linear-gradient(0deg,#00A4D3, #C9F1FD);
-    position: relative;
+    position: fixed;
 }
