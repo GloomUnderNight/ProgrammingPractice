@@ -13,7 +13,7 @@ body {
 }
 .wrapper {
     width: 100%;
-    min-width: 1000px;
+    min-width: 990px;
     min-height: 700px;
     height: 100%;
 }
@@ -21,16 +21,18 @@ body {
 
 /* Header
 -----------------------------------------------------------------------------*/
+
 .header {
-    height: 150px;
+
+    height: 120px;
     font-size: x-large;
     text-align: center;
     background: #00A4D3 linear-gradient(#00A4D3, #C9F1FD);
 }
 
-
 /* Tags' style
 -----------------------------------------------------------------------------*/
+
 main {
     display: table;
     table-layout:fixed;
@@ -74,52 +76,73 @@ textarea {
 tr, td {
     height: 40px;
 }
+
+td:nth-child(1){
+    width: 5%;
+    vertical-align: middle;
+}
+
+td:nth-child(2) {
+    width: 10%;
+    text-align: center;
+}
+
+td:nth-child(3) {
+    width: 80%;
+    text-align: left;
+}
+
+td:nth-child(4) {
+    width: 5%;
+    vertical-align: middle;
+    text-align: center;
+    padding: 3px;
+}
+
 /* Center layout classes
 -----------------------------------------------------------------------------*/
+
 .content {
     width: 100%;
-    height: 100%;
-    max-height: 350px;
+    height: 350px;
     overflow: auto;
 }
 
-.right-sidebar {
+.rightSidebar {
     text-align: center;
     background: #91E4FB;
 }
 
-.left-sidebar {
+.leftSidebar {
     text-align: center;
     background: #91E4FB;
 }
 
-.lower-middle {
+.lowerMiddle {
     display: table;
     table-layout: auto;
     width: 100%;
     border-spacing: 20px;
+    -webkit-border-vertical-spacing: 10px;
     background-color: #C9F1FD;
 }
 
-.MessagePanel {
+.messagePanel {
     margin: -22px auto 0;
     width: 100%;
 }
 
-.NamePanel {
+.namePanel {
     margin: -22px auto 0;
     width: 100%;
     min-width: 230px;
 }
 
-
-.right-sidebar-panel {
+.rightSidebarPanel {
     width: 20%;
     text-align: center;
     background: #91E4FB;
 }
-
-
 
 /* Entities classes
 -----------------------------------------------------------------------------*/
@@ -132,7 +155,6 @@ tr, td {
 
 .msgInput {
     height: 150px;
-
 }
 
 .chatButtons {
@@ -160,28 +182,14 @@ tr, td {
     background-color: #75A9F9;
 }
 
-.messageFunctions {
-    width: 5%;
-    vertical-align: middle;
-}
-
-.messageName {
-    width: 10%;
-    text-align: center;
-}
-
-.messageText {
-    width: 80%;
-    text-align: left;
-}
-
-.yourMessageField {
+.userMessageField {
     height: auto;
     background-color: #00C8F8;
 }
 
 /* Footer
 -----------------------------------------------------------------------------*/
+
 .footer {
     margin: -50px auto 0;
     width: 100%;
