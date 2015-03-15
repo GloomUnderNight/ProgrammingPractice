@@ -34,8 +34,6 @@ body {
 -----------------------------------------------------------------------------*/
 
 main {
-    display: table;
-    table-layout:fixed;
     width: 100%;
     border-spacing: 20px;
     background-color: #C9F1FD;
@@ -174,6 +172,7 @@ td:nth-child(4) {
     background-color: #A8C6FA;
     border-color: #008DB1;
     min-width: 50px;
+    width: 100%;
 }
 
 .messageField {
@@ -185,6 +184,12 @@ td:nth-child(4) {
 .userMessageField {
     height: auto;
     background-color: #00C8F8;
+}
+
+.userNameField {
+    width: 100%;
+    min-width: 50px;
+    box-sizing: border-box;
 }
 
 /* Footer

@@ -9,7 +9,7 @@
     <script src="scripts.js"></script>
 </head>
 
-<body>
+<body onload="run()">
 
 <div class="wrapper">
 
@@ -19,33 +19,13 @@
 
     <main>
 
-        <aside class="leftSidebar">
-            <strong>Tips:</strong>
-            <hr color="#3D8AF7">
-            To see how the connection icon works, you sholud click on it.
-        </aside>
-
         <article>
             <div class="content">
                 <br>
                 <table id="chat">
-                    <tr class="messageField">
-                        <td></td>
-                        <td>Miker</td>
-                        <td>Mus elit Morbi mus enim lacus at quis Nam eget morbi.Et semper urna urna non at cursus dolor vestibulum neque enim..Tellus interdum at laoreet laoreet lacinia lacinia sed Quisque justo quis.Hendrerit scelerisque lorem elit orci tempor tincidunt enim Phasellus dignissim tincidunt.Nunc vel et Sed nisl Vestibulum odio montes Aliquam volutpat pellentesque.Ut pede sagittis et quis nunc gravida porttitor ligula.
-                        <td>17:53:34 7.3.2015</td>
-                    </tr>
                 </table>
             </div>
         </article>
-
-        <aside class="rightSidebar">
-            <strong>Who is in this chat?</strong>
-            <hr color="#3D8AF7">
-            <b>
-            <div id="userNameField"></div>
-            </b>
-        </aside>
 
     </main>
 
@@ -65,10 +45,10 @@
 
         <aside class="rightSidebarPanel">
             <div class="namePanel" align="left"><br>
-                <input type="text" placeholder="Input Your name here..." id="nameField" maxlength="24">
+                <input type="text" placeholder="Input Your name here..." id="nameField" class="userNameField" maxlength="24">
                 <input type="submit" name="submitName" value="Submit!" class="simpleButton" onclick="onNameButtonClick()">
             </div>
-            <br><br>
+            <br>
             <div>
                 <img src="wifi.png" alt="Here will be the indicator of connection" height="40" width="40" border="1px" onclick="changeIcon(this)">
             </div>
