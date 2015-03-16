@@ -192,16 +192,31 @@ function getTempDate() {
 
 function deleteMessage(thisButton){
     var parent = thisButton.parentNode.parentNode;
-    var place = thisButton.parentNode.parentNode.childNodes.item(2);
+    var place = thisButton.parentNode.parentNode.childNodes.item(3);
+    var tmpUser;
     for (var i = 0; i < messageList.length; i++){
         if (messageList[i].messageFlag != false){
-            if (messageList[i].messageText == place.innerHTML){
-                messageList.splice(i,1);
+            if (messageList[i].messageDate == place.innerHTML){
+                tmpUser = messageList[i].messageUser;
+                messageList[i].messageText = 'This message was deleted by ' + messageList[i].messageUser + '.';
+                messageList[i].messageFlag = false;
+                messageList[i].messageUser = 'System';
+                messageList[i].messageDate = getTempDate();
             }
         }
     }
     store(messageList);
-    parent.parentNode.removeChild(parent);
+    var message = document.createElement('tr');
+    message.classList.add('messageField');
+    var messageFunctions = FunctionsForming();
+    var messageName = nameMessageForming('System');
+    var messageText = messageTextForming('This message was deleted by ' + tmpUser + '.');
+    var d = dateForming(getTempDate());
+    message.appendChild(messageFunctions);
+    message.appendChild(messageName);
+    message.appendChild(messageText);
+    message.appendChild(d);
+    parent.parentNode.replaceChild(message,parent);
 }
 
 function insertMessage(userName, newMessage, date){
@@ -237,11 +252,12 @@ function editButtonClicked(button){
         return;
     }
     editFlag = true;
+    var oldDatePlace = button.parentNode.parentNode.childNodes.item(3);
     oldTextPlace = button.parentNode.parentNode.childNodes.item(2);
     document.getElementById('textInput').value = oldTextPlace.innerHTML;
     for (var i = 0; i < messageList.length; i++){
         if (messageList[i].messageFlag != false){
-            if (messageList[i].messageText == oldTextPlace.innerHTML){
+            if (messageList[i].messageDate == oldDatePlace.innerHTML){
                 tmpMsgEdit = messageList[i];
             }
         }
@@ -254,8 +270,8 @@ function editMessage(){
         return;
     }
     editFlag = false;
-    oldTextPlace.innerHTML = document.getElementById('textInput').value;
-    tmpMsgEdit.messageText = document.getElementById('textInput').value;
+    oldTextPlace.innerHTML = document.getElementById('textInput').value + '<br><br><h6>Message was changed at</h6>' + getTempDate();
+    tmpMsgEdit.messageText = document.getElementById('textInput').value + '<br><br><h6>Message was changed at</h6>' + getTempDate();
     document.getElementById('textInput').value = '';
     store(messageList);
 }
