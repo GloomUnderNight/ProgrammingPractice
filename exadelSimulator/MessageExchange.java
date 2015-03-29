@@ -25,15 +25,21 @@ public class MessageExchange {
         return jsonObject.toJSONString();
     }
 
-    public String getClientSendMessageRequest(String message) {
+    public String getClientSendMessageRequest(Message message) {
         JSONObject jsonObject = new JSONObject();
-        jsonObject.put("message", message);
+        jsonObject.put("id", Double.toString(message.getId()));
+        jsonObject.put("user", message.getAuthor());
+        jsonObject.put("message", message.getMessageText());
+        jsonObject.put("date", message.getDate());
         return jsonObject.toJSONString();
     }
 
     public String getClientMessage(InputStream inputStream) throws ParseException {
-        String tmp = (String) getJSONObject(inputStreamToString(inputStream)).get("message");
-        return (String) getJSONObject(inputStreamToString(inputStream)).get("message");
+        JSONObject tmp = getJSONObject(inputStreamToString(inputStream));
+        return "\"id\"" + ':' + '"' + (String) tmp.get("id") + '"'
+                + ", " + "\"user\"" + ':' + '"' + (String) tmp.get("user") + '"'
+                + ", " + "\"message\"" + ':' + '"' + (String) tmp.get("message") + '"'
+                + ", " + "\"date\"" + ':' + '"' + tmp.get("date") + '"';
     }
 
     public JSONObject getJSONObject(String json) throws ParseException {

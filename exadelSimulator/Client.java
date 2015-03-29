@@ -77,7 +77,7 @@ public class Client implements Runnable {
         return tmp;
     }
 
-    public void sendMessage(String message) {
+    public void sendMessage(Message message) {
         HttpURLConnection connection = null;
         try {
             connection = getHttpURLConnection();
@@ -127,12 +127,12 @@ public class Client implements Runnable {
         while (true) {
             String message = scanner.nextLine();
             Message tmp = new Message(message, Username);
-            sendMessage(tmp.toString());
+            sendMessage(tmp);
         }
     }
 
     private String loggingIn(){
-        System.out.print("input your name: ");
+        System.out.print("Input your name: ");
         Scanner sc = new Scanner(System.in);
         return sc.nextLine();
     }
