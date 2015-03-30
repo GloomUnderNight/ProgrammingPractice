@@ -66,7 +66,7 @@ public class Message {
     public boolean delete(){
         try {
             this.deleted = true;
-            this.messageText = "Message was deleted by " + this.author + ".";
+            this.messageText = "Message was deleted by " + this.author + " at " + new Date().toString() + ".";
             this.author = "System";
             return true;
         }
