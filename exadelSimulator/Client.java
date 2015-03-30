@@ -61,8 +61,8 @@ public class Client implements Runnable {
 
             for (int i = 0; i < list.size(); i++){
                 tmp.add(i, Message.fromString(list.get(i)));
-                System.out.println(tmp.get(i).getAuthor() + ": " + tmp.get(i).getMessageText() + " (" +
-                tmp.get(i).getDate() + " )");
+                System.out.println(tmp.get(i).getAuthor() + ": " + tmp.get(i).getMessageText() + " (Posted at " +
+                tmp.get(i).getDate() + ")");
             }
         } catch (IOException e) {
             System.err.println("ERROR: " + e.getMessage());
