@@ -8,10 +8,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Server implements HttpHandler {
     private List<Message> history = new ArrayList<Message>();
@@ -28,7 +25,16 @@ public class Server implements HttpHandler {
                 System.out.println("Server started.");
                 String serverHost = InetAddress.getLocalHost().getHostAddress();
                 System.out.println("Get list of messages: GET http://" + serverHost + ":" + port + "/chat?token={token}");
-                System.out.println("Send message: POST http://" + serverHost + ":" + port + "/chat provide body json in format {\"message\" : \"{message}\"} ");
+
+                System.out.println("Send message: POST http://" + serverHost + ":" + port +
+                        "/chat provide body json in format " + " " +
+                        "{\"id\":\"{id}\", \"user\":\"{user}\", \"message\":\"{message}\", \"date\":\"{date}\"}");
+
+                System.out.println("Delete message: DELETE " + serverHost + ":" + port + "/chat " +
+                        "provide json body in format " + " " + "{\"id\":\"{id}\"}");
+
+                System.out.println("Edit message: PUT " + serverHost + ":" + port + "/chat " +
+                        "provide json body in format " + " " + "{\"id\":\"{id}\", \"message\":\"{message}\"}");
 
                 server.createContext("/chat", new Server());
                 server.setExecutor(null);
@@ -47,10 +53,13 @@ public class Server implements HttpHandler {
             response = doGet(httpExchange);
         } else if ("POST".equals(httpExchange.getRequestMethod())) {
             doPost(httpExchange);
+        } else if ("DELETE".equals(httpExchange.getRequestMethod())) {
+            doDelete(httpExchange);
+        } else if ("PUT".equals(httpExchange.getRequestMethod())){
+                doEdit(httpExchange);
         } else {
             response = "Unsupported http method: " + httpExchange.getRequestMethod();
         }
-
         sendResponse(httpExchange, response);
     }
 
@@ -76,13 +85,50 @@ public class Server implements HttpHandler {
 
     private void doPost(HttpExchange httpExchange) {
         try {
-            String message = messageExchange.getClientMessage(httpExchange.getRequestBody());
-            Message tmp = Message.fromString(message);
+            Message tmp  = messageExchange.getClientMessage(httpExchange.getRequestBody());
             System.out.println("Get Message from " + tmp.getAuthor() + " at " + tmp.getDate() +
                     " : " + tmp.getMessageText());
             history.add(tmp);
         } catch (ParseException e) {
             System.err.println("Invalid user message: " + httpExchange.getRequestBody() + " " + e.getMessage());
+        }
+    }
+
+    private void doDelete(HttpExchange httpExchange){
+        try {
+            Message messageToDelete = messageExchange.getClientMessageToDelete(httpExchange.getRequestBody());
+            for (Message aHistory : history) {
+                if (messageToDelete.getId() == aHistory.getId()) {
+                    System.out.println("Message with Id = " + aHistory.getId() + " was deleted by "
+                            + aHistory.getAuthor() + " at "
+                            + aHistory.getDate());
+                    aHistory.delete();
+                    aHistory.setAuthor("System");
+                    aHistory.setDeleted(true);
+                    break;
+                }
+            }
+        }
+        catch (ParseException e) {
+            System.err.println("Invalid message for deletion: " + httpExchange.getRequestBody());
+        }
+    }
+
+    private void doEdit(HttpExchange httpExchange){
+        try {
+            Message messageToEdit = messageExchange.getClientMessageToEdit(httpExchange.getRequestBody());
+            for (Message aHistory : history) {
+                if (messageToEdit.getId() == aHistory.getId() && !aHistory.isDeleted()) {
+                    System.out.println("Message with Id = " + aHistory.getId() + " was edited by "
+                            + aHistory.getAuthor() + " at "
+                            + new Date().toString());
+                    aHistory.edit(messageToEdit.getMessageText());
+                    break;
+                }
+            }
+        }
+        catch (ParseException e) {
+            System.err.println("Invalid message for deletion: " + httpExchange.getRequestBody());
         }
     }
 

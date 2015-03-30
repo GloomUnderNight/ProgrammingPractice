@@ -34,12 +34,27 @@ public class MessageExchange {
         return jsonObject.toJSONString();
     }
 
-    public String getClientMessage(InputStream inputStream) throws ParseException {
+    public Message getClientMessage(InputStream inputStream) throws ParseException {
         JSONObject tmp = getJSONObject(inputStreamToString(inputStream));
-        return "\"id\"" + ':' + '"' + (String) tmp.get("id") + '"'
-                + ", " + "\"user\"" + ':' + '"' + (String) tmp.get("user") + '"'
-                + ", " + "\"message\"" + ':' + '"' + (String) tmp.get("message") + '"'
-                + ", " + "\"date\"" + ':' + '"' + tmp.get("date") + '"';
+        double tmpId = Double.parseDouble((String) tmp.get("id"));
+        String tmpDate = (String) tmp.get("date");
+        String tmpMessageText = (String) tmp.get("message");
+        String tmpAuthor = (String) tmp.get("user");
+        return new Message(tmpMessageText, tmpAuthor, tmpDate, tmpId);
+    }
+
+
+    public Message getClientMessageToDelete(InputStream inputStream) throws ParseException{
+        JSONObject tmp = getJSONObject(inputStreamToString(inputStream));
+        double tmpId = Double.parseDouble((String) tmp.get("id"));
+        return new Message("","","", tmpId);
+    }
+
+    public Message getClientMessageToEdit(InputStream inputStream) throws ParseException {
+        JSONObject tmp = getJSONObject(inputStreamToString(inputStream));
+        double tmpId = Double.parseDouble((String) tmp.get("id"));
+        String tmpMessage = (String) tmp.get("message");
+        return new Message(tmpMessage,"","", tmpId);
     }
 
     public JSONObject getJSONObject(String json) throws ParseException {
@@ -49,7 +64,7 @@ public class MessageExchange {
     public String inputStreamToString(InputStream in) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         byte[] buffer = new byte[1024];
-        int length = 0;
+        int length;
         try {
             while ((length = in.read(buffer)) != -1) {
                 baos.write(buffer, 0, length);
