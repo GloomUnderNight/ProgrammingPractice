@@ -5,12 +5,13 @@ var username = 0;
 var messageList = [];
 var tmpMsgEdit;
 
-var theMessage = function(text, user, changeable, date){
+var theMessage = function(text, user, changeable, date, id){
     return {
         messageText: text,
         messageUser: user,
         messageFlag: changeable,
-        messageDate: date
+        messageDate: date,
+        id: id
     };
 };
 
@@ -22,6 +23,10 @@ function run() {
     }
     messageList = restoreMessages() || [theMessage('Hi, welcome to our chat!','System',false,getTempDate())];
     fillMessageArea(messageList);
+}
+
+function idRandomiser(){
+    return Math.floor(Date.now() * Math.random() * Math.random());
 }
 
 function restoreUsername(){
@@ -134,7 +139,7 @@ function insertUserMessage(userName, newMessage, date){
     message.appendChild(messageName);
     message.appendChild(messageText);
     message.appendChild(d);
-    var msg = theMessage(newMessage,userName,true,date);
+    var msg = theMessage(newMessage,userName,true,date, idRandomiser());
     if (check(msg) == true) {
         messageList.push(msg);
     }
@@ -233,7 +238,7 @@ function insertMessage(userName, newMessage, date){
     message.appendChild(messageName);
     message.appendChild(messageText);
     message.appendChild(d);
-    var msg = theMessage(newMessage,userName,false,date);
+    var msg = theMessage(newMessage,userName,false,date, idRandomiser());
     if (check(msg) == true) {
         messageList.push(msg);
     }
