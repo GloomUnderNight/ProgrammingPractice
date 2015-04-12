@@ -1,12 +1,14 @@
 * {
     margin: 0;
     padding: 0;
+    color: #550C8B;
 }
 html {
     height: 100%;
 }
 
 body {
+
     font: 16px/22px Arial, sans-serif;
     height: 100%;
     background: #C9F1FD;
@@ -153,12 +155,14 @@ td:nth-child(4) {
 
 .msgInput {
     height: 150px;
+    padding-bottom: 0.8%;
 }
 
 .chatButtons {
     width: 70px;
     text-align: center;
     background: #C9F1FD;
+
 }
 
 .simpleChatButton {
@@ -166,9 +170,18 @@ td:nth-child(4) {
     border-color: #008DB1;
     width: 70px;
     height: 70px;
+    border-radius: 20%;
 }
 
 .simpleButton {
+    background-color: #A8C6FA;
+    border-color: #008DB1;
+    min-width: 50px;
+    width: 100%;
+
+}
+
+.simpleOutOfChatButton {
     background-color: #A8C6FA;
     border-color: #008DB1;
     min-width: 50px;
