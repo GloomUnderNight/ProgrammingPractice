@@ -18,29 +18,18 @@ public class MessageExchange {
         return (Integer.valueOf(token.substring(2, token.length() - 2)) - 11) / 8;
     }
 
-    public String getServerResponse(List<String> messages) {
+    public String getServerResponse(List<Message> messages) {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("messages", messages);
         jsonObject.put("token", getToken(messages.size()));
         return jsonObject.toJSONString();
     }
 
-    public String getClientSendMessageRequest(Message message) {
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put("id", Double.toString(message.getId()));
-        jsonObject.put("user", message.getAuthor());
-        jsonObject.put("message", message.getMessageText());
-        jsonObject.put("date", message.getDate());
-        return jsonObject.toJSONString();
-    }
-
     public Message getClientMessage(InputStream inputStream) throws ParseException {
-        JSONObject tmp = getJSONObject(inputStreamToString(inputStream));
-        double tmpId = Double.parseDouble((String) tmp.get("id"));
-        String tmpDate = (String) tmp.get("date");
+        JSONObject tmp = getJSONObject(inputStreamToString(inputStream));;
         String tmpMessageText = (String) tmp.get("message");
         String tmpAuthor = (String) tmp.get("user");
-        return new Message(tmpMessageText, tmpAuthor, tmpDate, tmpId);
+        return new Message(tmpMessageText, tmpAuthor);
     }
 
 

@@ -1,32 +1,35 @@
 var editFlag = false;
 var oldTextPlace;
 var connectionFlag = true;
-var username = 0;
-var messageList = [];
 var tmpMsgEdit;
 
-var theMessage = function(text, user, changeable, date, id){
+var theMessage = function(messageText, userName, msgDate, msgId){
     return {
-        messageText: text,
-        messageUser: user,
-        messageFlag: changeable,
-        messageDate: date,
-        id: id
+        message: messageText,
+        user: userName,
+        date: msgDate,
+        id: msgId
     };
 };
 
+var appState = {
+    username : 0,
+    mainUrl : 'http://localhost:999/chat',
+    messageList:[],
+    token : 'TN11EN'
+};
+
 function run() {
-    username = restoreUsername() || 0;
-    if (username != 0){
+    appState.username = restoreUsername() || 0;
+    if (appState.username != 0){
         var tmp = document.getElementById('nameField');
-        tmp.value = username;
+        tmp.value = appState.username;
     }
-    messageList = restoreMessages() || [theMessage('Hi, welcome to our chat!','System',false,getTempDate())];
-    fillMessageArea(messageList);
+    restoreMessages();
 }
 
 function idRandomiser(){
-    return Math.floor(Date.now() * Math.random() * Math.random());
+    return Math.floor(Date.now() * Math.random() * Math.random() / 1000000);
 }
 
 function restoreUsername(){
@@ -40,75 +43,88 @@ function restoreUsername(){
     return item && JSON.parse(item);
 }
 
-function restoreMessages(){
-    if(typeof(Storage) == "undefined") {
-        alert('Local Storage is not accessible');
-        return;
-    }
-
-    var item = localStorage.getItem("Message List");
-
-    return item && JSON.parse(item);
+function restoreMessages(continueWith){
+   var url = appState.mainUrl + '?token=' + appState.token;
+    getQuerry(url, function (responseText) {
+        getMessageList(responseText, function () {
+            setTimeout(function () {
+                restoreMessages(continueWith);
+            }, 1000);
+        });
+    });
 }
 
-function store(listToSave) {
-    if(typeof(Storage) == "undefined") {
-        alert('localStorage is not accessible');
-        return;
-    }
-
-    localStorage.setItem("Message List", JSON.stringify(listToSave));
+function getMessageList(responseText, continueWith){
+    console.assert(responseText != null);
+    var response = JSON.parse(responseText);
+    appState.token = response.token;
+    fillMessageArea(response.messages);
+    continueWith && continueWith();
 }
 
 function fillMessageArea(messageList){
-    for (var i = 0; i < messageList.length; i++){
-        if (messageList[i].messageFlag == true){
-            insertUserMessage(messageList[i].messageUser, messageList[i].messageText, messageList[i].messageDate)
-        }
-        else {
-            insertMessage(messageList[i].messageUser, messageList[i].messageText, messageList[i].messageDate)
+    for (var i = 0; i < messageList.length; i++) {
+        if (checkIfMessageExists(messageList[i]) == false) {
+            appState.messageList.push(messageList[i]);
+            if (messageList[i].user == appState.username) {
+                insertUserMessage(messageList[i].user, messageList[i].message, messageList[i].date)
+            }
+            else {
+                insertMessage(messageList[i].user, messageList[i].message, messageList[i].date)
+            }
         }
     }
+}
+
+function checkIfMessageExists(msg){
+    for (var i = 0; i < appState.messageList.length; i++){
+        if (msg.id == appState.messageList[i].id){
+            return true;
+        }
+    }
+    return false;
 }
 
 function onNameButtonClick() {
     var tmp = document.getElementById('nameField');
-    if (tmp.value == username){
+    if (tmp.value == appState.username){
         return;
     }
     changeName(tmp.value);
 }
 
-function changeName(value){
+function changeName(value, continueWith){
     if(!value){
         return;
     }
-    renameDeclaration(value);
-    username = value;
+    renameDeclaration(value, continueWith);
+    appState.username = value;
     localStorage.setItem("Username", JSON.stringify(value));
 }
 
-function renameDeclaration(value){
-    if (username == 0) {
-        insertMessage("System",  (value + " has joined this chat."), 0);
+function renameDeclaration(value, continueWith){
+    var msg;
+    if (appState.username == 0) {
+        msg = theMessage(value + " has joined to this chat.", "System", 0, idRandomiser());
+        postQuerry(appState.mainUrl, JSON.stringify(msg), function () {
+            continueWith && continueWith();
+        });
     }
     else {
-        insertMessage("System",(username + " has changed name to " + value), 0);
+        msg = theMessage(appState.username + " has changed name to " + value, "System", 0, idRandomiser());
+        postQuerry(appState.mainUrl, JSON.stringify(msg), function () {
+            continueWith && continueWith();
+        });
     }
 }
 
-function check(msg){
-    for (var i = 0; i < messageList.length; i++){
-        if (msg.messageUser == messageList[i].messageUser && msg.messageDate == messageList[i].messageDate &&
-            msg.messageFlag == messageList[i].messageFlag && msg.messageText == messageList[i].messageText){
-            return false;
-        }
-    }
-    return true;
-}
 
-function sendMessage(){
-    var userName = username;
+function sendMessage(continueWith){
+    if (connectionFlag == false){
+        connectionAlert();
+        return;
+    }
+    var userName = appState.username;
     if (userName == ''){
         window.alert('You have to sign up at first!');
         return;
@@ -121,7 +137,10 @@ function sendMessage(){
     if (newMessage.value == '') {
         return;
     }
-    insertUserMessage(userName, newMessage.value, 0);
+    var msg = theMessage(newMessage.value, userName, 0, idRandomiser());
+    postQuerry(appState.mainUrl, JSON.stringify(msg), function () {
+        continueWith && continueWith();
+    });
     newMessage.value = '';
 }
 
@@ -139,13 +158,8 @@ function insertUserMessage(userName, newMessage, date){
     message.appendChild(messageName);
     message.appendChild(messageText);
     message.appendChild(d);
-    var msg = theMessage(newMessage,userName,true,date, idRandomiser());
-    if (check(msg) == true) {
-        messageList.push(msg);
-    }
     var destination = document.getElementById('chat');
     destination.appendChild(message);
-    store(messageList);
 }
 
 function userFunctionsForming (){
@@ -195,33 +209,28 @@ function getTempDate() {
     return date;
 }
 
-function deleteMessage(thisButton){
-    var parent = thisButton.parentNode.parentNode;
+function deleteMessage(thisButton, continueWith){
+    if (connectionFlag == false){
+        connectionAlert();
+        return;
+    }
     var place = thisButton.parentNode.parentNode.childNodes.item(3);
-    var tmpUser;
-    for (var i = 0; i < messageList.length; i++){
-        if (messageList[i].messageFlag != false){
-            if (messageList[i].messageDate == place.innerHTML){
-                tmpUser = messageList[i].messageUser;
-                messageList[i].messageText = 'This message was deleted by ' + messageList[i].messageUser + '.';
-                messageList[i].messageFlag = false;
-                messageList[i].messageUser = 'System';
-                messageList[i].messageDate = getTempDate();
-            }
+    var tmpMsg;
+    for (var i = 0; i < appState.messageList.length; i++) {
+        if (appState.messageList[i].date == place.innerHTML) {
+            tmpMsg = appState.messageList[i];
         }
     }
-    store(messageList);
-    var message = document.createElement('tr');
-    message.classList.add('messageField');
-    var messageFunctions = FunctionsForming();
-    var messageName = nameMessageForming('System');
-    var messageText = messageTextForming('This message was deleted by ' + tmpUser + '.');
-    var d = dateForming(getTempDate());
-    message.appendChild(messageFunctions);
-    message.appendChild(messageName);
-    message.appendChild(messageText);
-    message.appendChild(d);
-    parent.parentNode.replaceChild(message,parent);
+    deleteQuerry(appState.mainUrl, JSON.stringify(tmpMsg), function () {
+        continueWith && continueWith();
+    });
+    //shuffleMessages();
+}
+
+function shuffleMessages(){
+    document.getElementById('chat').innerHTML = '';
+    appState.token = 'TN11EN';
+    appState.messageList.splice(0, appState.messageList.length);
 }
 
 function insertMessage(userName, newMessage, date){
@@ -238,13 +247,8 @@ function insertMessage(userName, newMessage, date){
     message.appendChild(messageName);
     message.appendChild(messageText);
     message.appendChild(d);
-    var msg = theMessage(newMessage,userName,false,date, idRandomiser());
-    if (check(msg) == true) {
-        messageList.push(msg);
-    }
     var destination = document.getElementById('chat');
     destination.appendChild(message);
-    store(messageList);
 }
 
 function FunctionsForming (){
@@ -256,38 +260,125 @@ function editButtonClicked(button){
         window.alert("You are editing one message already!");
         return;
     }
+    if (connectionFlag == false){
+        connectionAlert();
+        return;
+    }
     editFlag = true;
     var oldDatePlace = button.parentNode.parentNode.childNodes.item(3);
     oldTextPlace = button.parentNode.parentNode.childNodes.item(2);
     document.getElementById('textInput').value = oldTextPlace.innerHTML;
-    for (var i = 0; i < messageList.length; i++){
-        if (messageList[i].messageFlag != false){
-            if (messageList[i].messageDate == oldDatePlace.innerHTML){
-                tmpMsgEdit = messageList[i];
-            }
+    for (var i = 0; i < appState.messageList.length; i++){
+        if (appState.messageList[i].date == oldDatePlace.innerHTML){
+            tmpMsgEdit = appState.messageList[i];
         }
     }
 }
 
-function editMessage(){
+function editMessage(continueWith){
     if (editFlag == false){
         window.alert("You have to select message to edit firstly!");
         return;
     }
     editFlag = false;
-    oldTextPlace.innerHTML = document.getElementById('textInput').value + '<br><br><h6>Message was changed at</h6>' + getTempDate();
-    tmpMsgEdit.messageText = document.getElementById('textInput').value + '<br><br><h6>Message was changed at</h6>' + getTempDate();
+    var querryMsg = theMessage(document.getElementById('textInput').value, 0, 0, tmpMsgEdit.id);
+    putQuerry(appState.mainUrl, JSON.stringify(querryMsg), function () {
+        continueWith && continueWith()});
     document.getElementById('textInput').value = '';
-    store(messageList);
+    //shuffleMessages();
 }
 
 function changeIcon(icon){
-    if (connectionFlag == true){
-        connectionFlag = false;
+    if (connectionFlag == false){
         icon.src="nowifi.png";
     }
     else{
-        connectionFlag = true;
         icon.src="wifi.png"
     }
+}
+
+function getQuerry(url, continueWith, continueWithError) {
+    ajax('GET', url, null, continueWith, continueWithError);
+}
+
+function postQuerry(url, data, continueWith, continueWithError) {
+    ajax('POST', url, data, continueWith, continueWithError);
+}
+
+function putQuerry(url, data, continueWith, continueWithError) {
+    ajax('PUT', url, data, continueWith, continueWithError);
+}
+
+function deleteQuerry(url, data, continueWith, continueWithError) {
+    ajax('DELETE', url, data, continueWith, continueWithError);
+}
+
+function isError(text) {
+    if(text == "")
+        return false;
+
+    try {
+        var obj = JSON.parse(text);
+    } catch(ex) {
+        return true;
+    }
+
+    return !!obj.error;
+}
+
+function setConnectionStatus(statusFlag){
+    connectionFlag = statusFlag;
+    changeIcon(document.getElementById('connectionIcon'));
+}
+
+function ajax(method, url, data, continueWith, continueWithError) {
+    var xhr = new XMLHttpRequest();
+
+    continueWithError = continueWithError || defaultErrorHandler;
+    xhr.open(method || 'GET', url, true);
+
+    xhr.onload = function () {
+        if (xhr.readyState !== 4)
+            return;
+
+        if(xhr.status != 200) {
+            setConnectionStatus(false);
+            continueWithError('Error on the server side, response ' + xhr.status);
+            return;
+        }
+
+        if(isError(xhr.responseText)) {
+            setConnectionStatus(false);
+            continueWithError('Error on the server side, response ' + xhr.responseText);
+            return;
+        }
+        continueWith(xhr.responseText);
+    };
+
+    xhr.ontimeout = function () {
+        setConnectionStatus(false);
+        continueWithError('Server timed out !');
+    };
+
+    xhr.onerror = function () {
+        setConnectionStatus(false);
+        var errMsg = 'Server connection error !\n'+
+            '\n' +
+            'Check if \n'+
+            '- server is active\n'+
+            '- server sends header "Access-Control-Allow-Origin:*"';
+
+        continueWithError(errMsg);
+    };
+
+    xhr.send(data);
+}
+
+function defaultErrorHandler() {
+    shuffleMessages();
+}
+
+function connectionAlert(){
+    window.alert("Connection to the server has been lost. Please press F5 to try to reconnect to the server."
+    + "If the problem won't remove, contact server administrator.");
 }

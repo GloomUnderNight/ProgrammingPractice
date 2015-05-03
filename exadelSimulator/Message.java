@@ -1,42 +1,49 @@
 import java.util.Date;
+import java.text.SimpleDateFormat;
+import java.util.TimeZone;
 
 public class Message {
 
-    private String messageText;
-    private String author;
+    private String message;
+    private String user;
     private String date;
-    private boolean deleted = false;
     private double id;
 
-    public Message(String messageText, String author) {
-        this.messageText = messageText;
-        this.author = author;
-        Date currentDate = new Date();
-        date = currentDate.toString();
+    public Message(String message, String user) {
+        this.message = message;
+        this.user = user;
+        date = getCurrentDate();
         id = Math.random();
     }
 
-    public Message(String messageText, String author, String date, double ID) {
-        this.messageText = messageText;
-        this.author = author;
+    public Message(String message, String user, String date, double ID) {
+        this.message = message;
+        this.user = user;
         this.date = date;
         this.id = ID;
     }
 
-    public String getMessageText() {
-        return messageText;
+    public static String getCurrentDate()
+    {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss dd.MM.yyyy");
+        dateFormat.setTimeZone(TimeZone.getTimeZone("Europe/Minsk"));
+        return dateFormat.format(new Date());
     }
 
-    public void setMessageText(String messageText) {
-        this.messageText = messageText;
+    public String getMessage() {
+        return message;
     }
 
-    public String getAuthor() {
-        return author;
+    public void setMessage(String message) {
+        this.message = message;
     }
 
-    public void setAuthor(String author) {
-        this.author = author;
+    public String getUser() {
+        return user;
+    }
+
+    public void setUser(String user) {
+        this.user = user;
     }
 
     public String getDate() {
@@ -45,14 +52,6 @@ public class Message {
 
     public void setDate(String date) {
         this.date = date;
-    }
-
-    public boolean isDeleted() {
-        return deleted;
-    }
-
-    public void setDeleted(boolean deleted) {
-        this.deleted = deleted;
     }
 
     public double getId() {
@@ -65,9 +64,8 @@ public class Message {
 
     public boolean delete(){
         try {
-            this.deleted = true;
-            this.messageText = "Message was deleted by " + this.author + " at " + new Date().toString() + ".";
-            this.author = "System";
+            this.message = "Message was deleted by " + this.user + " at " + getCurrentDate() + ".";
+            this.user = "System";
             return true;
         }
         catch (Exception e){
@@ -77,7 +75,7 @@ public class Message {
 
     public boolean edit(String newMessage){
         try{
-            this.messageText = newMessage + " (Edited at " + new Date().toString() + ")";
+            this.message = newMessage + " (Edited at " + getCurrentDate() + ")";
             return true;
         }
         catch (Exception e){
@@ -87,51 +85,12 @@ public class Message {
 
     @Override
     public String toString() {
-        return "\"id\"" + ':' + '"' + id + '"'
-                + ", " + "\"user\"" + ':' + '"' + author + '"'
-                + ", " + "\"message\"" + ':' + '"' + messageText + '"'
-                + ", " + "\"date\"" + ':' + '"' + date + '"';
+        StringBuilder sb = new StringBuilder();
+        sb.append("{\"id\":\"").append(id)
+                .append("\", \"user\":\"").append(user)
+                .append("\", \"message\":\"").append(message)
+                .append("\", \"date\":\"").append(date).append("\"}");
+        return sb.toString();
     }
 
-    public static Message fromString(String str){
-        double tmpId = 0;
-        String tmpDate = "";
-        String tmpUser = "";
-        String tmpMessage = "";
-        int counter = 0;
-        int firstPos = 0;
-        int secondPos;
-        boolean flag = false;
-        for (int i = 0; i < str.length(); i++){
-            if (str.charAt(i) == '"'){
-                counter++;
-                if ((counter == 3 || counter == 7 || counter == 11 || counter == 15) && flag == false){
-                    firstPos = i;
-                    flag = true;
-                }
-            }
-            if (counter == 4 && flag == true){
-                secondPos = i;
-                String tmp = str.substring(firstPos + 1, secondPos);
-                tmpId = Double.parseDouble(str.substring(firstPos + 1, secondPos));
-                flag = false;
-            }
-            if (counter == 8 && flag == true){
-                secondPos = i;
-                tmpUser = str.substring(firstPos + 1, secondPos);
-                flag = false;
-            }
-            if (counter == 12 && flag == true){
-                secondPos = i;
-                tmpMessage = str.substring(firstPos + 1, secondPos);
-                flag = false;
-            }
-            if (counter == 16 && flag == true){
-                secondPos = i;
-                tmpDate = str.substring(firstPos + 1, secondPos);
-                flag = false;
-            }
-        }
-        return new Message(tmpMessage, tmpUser, tmpDate, tmpId);
-    }
 }
